@@ -22,7 +22,7 @@ The completion routines support completing all options and arguments provided by
    * a.) Either, place it in a `bash-completion.d` folder, like:
        * `/etc/bash-completion.d`
        * `/usr/local/etc/bash-completion.d`
-       * `~/bash-completion.d`
+       * `~/.bash-completion.d`
    * b.) Or, copy it somewhere (e.g. `~/.phpunit-completion.sh`) and put the
      following line in your `.bashrc`:
 
