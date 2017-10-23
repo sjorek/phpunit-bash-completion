@@ -20,54 +20,114 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
     _phpunit_options()
     {
-        ( ${1} --help | grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9])" ) 2>/dev/null
+        if declare -p _PHPUNIT_OPTIONS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_OPTIONS}"
+        else
+            ( ${1} --help | grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9])" ) 2>/dev/null
+        fi
     }
 
     _phpunit_suites()
     {
         local line
-        ( ${1} --list-suites | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
-            while read line ; do
-                if [[ "${line}" =~ " " ]] ; then
-                    printf "%q\n" "\"${line}\""
-                else
-                    printf "%q\n" "${line}"
-                fi
-            done
+        if declare -p _PHPUNIT_SUITES >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_SUITES}"
+        else
+            ( ${1} --list-suites | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
+                while read line ; do
+                    if [[ "${line}" =~ " " ]] ; then
+                        printf "%q\n" "\"${line}\""
+                    else
+                        printf "%q\n" "${line}"
+                    fi
+                done
+        fi
     }
 
     _phpunit_groups()
     {
         local line
-        ( ${1} --list-groups | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
-            while read line ; do
-                if [[ "${line}" =~ " " ]] ; then
-                    printf "%q\n" "\"${line}\""
-                else
-                    printf "%q\n" "${line}"
-                fi
-            done
+        if declare -p _PHPUNIT_GROUPS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_GROUPS}"
+        else
+            ( ${1} --list-groups | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
+                while read line ; do
+                    if [[ "${line}" =~ " " ]] ; then
+                        printf "%q\n" "\"${line}\""
+                    else
+                        printf "%q\n" "${line}"
+                    fi
+                done
+        fi
     }
 
     _phpunit_tests()
     {
         local line
-        (
-            ${1} --list-tests | \
-            grep -E "^ - " | \
-            cut -f 3- -d " " | \
-            sed -e $'s|^.*::||g;s|\("[^"]*"\)|\\\n\\1|g;s|#\(.*\)$|\\\n"#\\1"|g' | \
-            sort | \
-            uniq
-        ) 2>/dev/null | \
-            while read line ; do
-                printf "%q\n" "${line}"
-            done
+        if declare -p _PHPUNIT_TESTS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_TESTS}"
+        else
+            (
+                ${1} --list-tests | \
+                grep -E "^ - " | \
+                cut -f 3- -d " " | \
+                sed -e $'s|^.*::||g;s|\("[^"]*"\)|\\\n\\1|g;s|#\(.*\)$|\\\n"#\\1"|g' | \
+                sort | \
+                uniq
+            ) 2>/dev/null | \
+                while read line ; do
+                    printf "%q\n" "${line}"
+                done
+        fi
     }
 
     _phpunit_php_settings()
     {
-        php -r 'array_map(function($k) { echo $k . PHP_EOL; }, array_keys(ini_get_all(null, false)));' 2>/dev/null
+        if declare -p _PHPUNIT_PHP_SETTINGS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_PHP_SETTINGS}"
+        else
+            php -r 'array_map(function($k) { echo $k . PHP_EOL; }, array_keys(ini_get_all(null, false)));' 2>/dev/null
+        fi
+    }
+
+    _phpunit_cache_completion()
+    {
+        if [ "${1}" = "" ] ; then
+            echo "Missing name of phpunit executable as first argument"
+        else
+            _phpunit_uncache_completion
+
+            echo -n "- cache phpunit's option completion: "
+            _PHPUNIT_OPTIONS=$(_phpunit_options ${1})
+            echo "done."
+
+            echo -n "- cache phpunit's suite completion: "
+            _PHPUNIT_SUITES=$(_phpunit_suites ${1})
+            echo "done."
+
+            echo -n "- cache phpunit's group completion: "
+            _PHPUNIT_GROUPS=$(_phpunit_groups ${1})
+            echo "done."
+
+            echo -n "- cache phpunit's test completion: "
+            _PHPUNIT_TESTS=$(_phpunit_tests ${1})
+            echo "done."
+
+            echo -n "- cache phpunit's php setting completion: "
+            _PHPUNIT_PHP_SETTINGS=$(_phpunit_php_settings)
+            echo "done."
+        fi
+    }
+
+    _phpunit_uncache_completion()
+    {
+        echo -n "- purge cached phpunit completion: "
+        unset _PHPUNIT_OPTIONS
+        unset _PHPUNIT_SUITES
+        unset _PHPUNIT_GROUPS
+        unset _PHPUNIT_TESTS
+        unset _PHPUNIT_PHP_SETTINGS
+        echo "done."
     }
 
     _phpunit()
