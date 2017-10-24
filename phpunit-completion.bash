@@ -132,75 +132,75 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
     _phpunit()
     {
-        local phpunit current previous options
+        local phpunit cur prev options
 
         COMPREPLY=()
         phpunit="${COMP_WORDS[0]}"
         if type _get_comp_words_by_ref &>/dev/null; then
-          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -c current
-          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -p previous
+          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -c cur
+          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -p prev
         else
-          current="${COMP_WORDS[COMP_CWORD]}"
-          previous="${COMP_WORDS[COMP_CWORD-1]}"
+          cur="${COMP_WORDS[COMP_CWORD]}"
+          prev="${COMP_WORDS[COMP_CWORD-1]}"
         fi
-        current=$( printf "%q" "${current}" )
-        previous=$( printf "%q" "${previous}" )
+        cur=$( printf "%q" "${cur}" )
+        prev=$( printf "%q" "${prev}" )
 
-        case "${previous}" in
+        case "${prev}" in
             --coverage-html|--coverage-xml|--include-path|--whitelist)
-                _filedir -d 2>/dev/null || COMPREPLY=($(compgen -d -- "${current}"))
-                __ltrim_colon_completions "${current}"
+                _filedir -d 2>/dev/null || COMPREPLY=($(compgen -d -- "${cur}"))
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --bootstrap|-c|--configuration|--coverage-*|--log-*|--list-tests-xml|--testdox-*)
-                _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${current}"))
-                __ltrim_colon_completions "${current}"
+                _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${cur}"))
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --group|--exclude-group)
                 options=$(_phpunit_groups "${phpunit}")
-                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${current}")
-                __ltrim_colon_completions "${current}"
+                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --testsuite)
                 options=$(_phpunit_suites "${phpunit}")
-                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${current}")
-                __ltrim_colon_completions "${current}"
+                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --filter)
                 options=$(_phpunit_tests "${phpunit}")
-                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${current}")
-                __ltrim_colon_completions "${current}"
+                mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             -d)
-                COMPREPLY=($(compgen -W "$(_phpunit_php_settings)" -- "${current}"))
-                __ltrim_colon_completions "${current}"
+                COMPREPLY=($(compgen -W "$(_phpunit_php_settings)" -- "${cur}"))
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             -h|--help|--list-*|--version)
-                __ltrim_colon_completions "${current}"
+                __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
         esac
 
-        if [[ ${current} == -* ]]; then
+        if [[ ${cur} == -* ]]; then
             options=$(_phpunit_options "${phpunit}")
-            COMPREPLY=($(compgen -W "${options}" -- "${current}"))
+            COMPREPLY=($(compgen -W "${options}" -- "${cur}"))
         else
-            _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${current}"))
+            _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${cur}"))
         fi
 
-        __ltrim_colon_completions "${current}"
+        __ltrim_colon_completions "${cur}"
         return 0
     }
 
