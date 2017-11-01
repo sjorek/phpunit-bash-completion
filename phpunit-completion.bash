@@ -16,26 +16,69 @@
 # Need help? [RTFM](https://sjorek.github.io/phpunit-bash-completion)!
 #
 
-if type complete &>/dev/null && type compgen &>/dev/null; then
+if type -t _get_comp_words_by_ref >/dev/null ; then
 
-    _phpunit_options()
+    phpunit-completion-cache-completion()
     {
-        if declare -p _PHPUNIT_OPTIONS >/dev/null 2>&1 ; then
-            echo "${_PHPUNIT_OPTIONS}"
+        if [ "${1}" = '' ] ; then
+            echo 'Missing name of phpunit executable as first argument'
+        else
+            phpunit-completion-clear-cache
+
+            echo ''
+            echo 'Cache phpunit completion:'
+
+            echo -n '- cache option completion: '
+            _PHPUNIT_COMPLETION_OPTIONS=$(_phpunit_options ${1})
+            echo 'done.'
+
+            echo -n '- cache suite completion: '
+            _PHPUNIT_COMPLETION_SUITES=$(_phpunit_suites ${1})
+            echo 'done.'
+
+            echo -n '- cache group completion: '
+            _PHPUNIT_COMPLETION_GROUPS=$(_phpunit_groups ${1})
+            echo 'done.'
+
+            echo -n '- cache test completion: '
+            _PHPUNIT_COMPLETION_TESTS=$(_phpunit_tests ${1})
+            echo 'done.'
+
+            echo -n '- cache php setting completion: '
+            _PHPUNIT_COMPLETION_PHP_SETTINGS=$(_phpunit_php_settings)
+            echo 'done.'
+        fi
+    }
+
+    phpunit-completion-clear-cache()
+    {
+        echo -n 'Purge phpunit completion cache: '
+        unset _PHPUNIT_COMPLETION_OPTIONS
+        unset _PHPUNIT_COMPLETION_SUITES
+        unset _PHPUNIT_COMPLETION_GROUPS
+        unset _PHPUNIT_COMPLETION_TESTS
+        unset _PHPUNIT_COMPLETION_PHP_SETTINGS
+        echo 'done.'
+    }
+
+    _phpunit_completion_options()
+    {
+        if declare -p _PHPUNIT_COMPLETION_OPTIONS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_COMPLETION_OPTIONS}"
         else
             ( ${1} --help | grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9])" ) 2>/dev/null
         fi
     }
 
-    _phpunit_suites()
+    _phpunit_completion_suites()
     {
         local line
-        if declare -p _PHPUNIT_SUITES >/dev/null 2>&1 ; then
-            echo "${_PHPUNIT_SUITES}"
+        if declare -p _PHPUNIT_COMPLETION_SUITES >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_COMPLETION_SUITES}"
         else
-            ( ${1} --list-suites | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
+            ( ${1} --list-suites | grep -E '^ - ' | cut -f 3- -d ' ' ) 2>/dev/null | \
                 while read line ; do
-                    if [[ "${line}" =~ " " ]] ; then
+                    if [[ "${line}" =~ ' ' ]] ; then
                         printf "%q\n" "\"${line}\""
                     else
                         printf "%q\n" "${line}"
@@ -44,15 +87,15 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         fi
     }
 
-    _phpunit_groups()
+    _phpunit_completion_groups()
     {
         local line
-        if declare -p _PHPUNIT_GROUPS >/dev/null 2>&1 ; then
-            echo "${_PHPUNIT_GROUPS}"
+        if declare -p _PHPUNIT_COMPLETION_GROUPS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_COMPLETION_GROUPS}"
         else
-            ( ${1} --list-groups | grep -E "^ - " | cut -f 3- -d " " ) 2>/dev/null | \
+            ( ${1} --list-groups | grep -E '^ - ' | cut -f 3- -d ' ' ) 2>/dev/null | \
                 while read line ; do
-                    if [[ "${line}" =~ " " ]] ; then
+                    if [[ "${line}" =~ ' ' ]] ; then
                         printf "%q\n" "\"${line}\""
                     else
                         printf "%q\n" "${line}"
@@ -61,16 +104,16 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         fi
     }
 
-    _phpunit_tests()
+    _phpunit_completion_tests()
     {
         local line
-        if declare -p _PHPUNIT_TESTS >/dev/null 2>&1 ; then
-            echo "${_PHPUNIT_TESTS}"
+        if declare -p _PHPUNIT_COMPLETION_TESTS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_COMPLETION_TESTS}"
         else
             (
                 ${1} --list-tests | \
-                grep -E "^ - " | \
-                cut -f 3- -d " " | \
+                grep -E '^ - ' | \
+                cut -f 3- -d ' ' | \
                 sed -e $'s|^.*::||g;s|\("[^"]*"\)|\\\n\\1|g;s|#\(.*\)$|\\\n"#\\1"|g' | \
                 sort | \
                 uniq
@@ -81,70 +124,25 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         fi
     }
 
-    _phpunit_php_settings()
+    _phpunit_completion_php_settings()
     {
-        if declare -p _PHPUNIT_PHP_SETTINGS >/dev/null 2>&1 ; then
-            echo "${_PHPUNIT_PHP_SETTINGS}"
+        if declare -p _PHPUNIT_COMPLETION_PHP_SETTINGS >/dev/null 2>&1 ; then
+            echo "${_PHPUNIT_COMPLETION_PHP_SETTINGS}"
         else
             php -r 'array_map(function($k) { echo $k . PHP_EOL; }, array_keys(ini_get_all(null, false)));' 2>/dev/null
         fi
     }
 
-    _phpunit_cache_completion()
-    {
-        if [ "${1}" = "" ] ; then
-            echo "Missing name of phpunit executable as first argument"
-        else
-            _phpunit_uncache_completion
-
-            echo -n "- cache phpunit's option completion: "
-            _PHPUNIT_OPTIONS=$(_phpunit_options ${1})
-            echo "done."
-
-            echo -n "- cache phpunit's suite completion: "
-            _PHPUNIT_SUITES=$(_phpunit_suites ${1})
-            echo "done."
-
-            echo -n "- cache phpunit's group completion: "
-            _PHPUNIT_GROUPS=$(_phpunit_groups ${1})
-            echo "done."
-
-            echo -n "- cache phpunit's test completion: "
-            _PHPUNIT_TESTS=$(_phpunit_tests ${1})
-            echo "done."
-
-            echo -n "- cache phpunit's php setting completion: "
-            _PHPUNIT_PHP_SETTINGS=$(_phpunit_php_settings)
-            echo "done."
-        fi
-    }
-
-    _phpunit_uncache_completion()
-    {
-        echo -n "- purge cached phpunit completion: "
-        unset _PHPUNIT_OPTIONS
-        unset _PHPUNIT_SUITES
-        unset _PHPUNIT_GROUPS
-        unset _PHPUNIT_TESTS
-        unset _PHPUNIT_PHP_SETTINGS
-        echo "done."
-    }
-
-    _phpunit()
+    _phpunit_completion()
     {
         local phpunit cur prev options
 
         COMPREPLY=()
         phpunit="${COMP_WORDS[0]}"
-        if type _get_comp_words_by_ref &>/dev/null; then
-          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -c cur
-          _get_comp_words_by_ref -n = -n @ -n : -n '"' -n '#' -p prev
-        else
-          cur="${COMP_WORDS[COMP_CWORD]}"
-          prev="${COMP_WORDS[COMP_CWORD-1]}"
-        fi
-        cur=$( printf "%q" "${cur}" )
-        prev=$( printf "%q" "${prev}" )
+
+        _get_comp_words_by_ref -n '#' cur prev
+        cur=$( printf '%q' "${cur}" )
+        prev=$( printf '%q' "${prev}" )
 
         case "${prev}" in
             --coverage-html|--coverage-xml|--include-path|--whitelist)
@@ -160,28 +158,28 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
                 ;;
 
             --group|--exclude-group)
-                options=$(_phpunit_groups "${phpunit}")
+                options=$(_phpunit_completion_groups "${phpunit}")
                 mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
                 __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --testsuite)
-                options=$(_phpunit_suites "${phpunit}")
+                options=$(_phpunit_completion_suites "${phpunit}")
                 mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
                 __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             --filter)
-                options=$(_phpunit_tests "${phpunit}")
+                options=$(_phpunit_completion_tests "${phpunit}")
                 mapfile -t COMPREPLY < <(IFS=$'\n' compgen -W "${options}" -- "${cur}")
                 __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
 
             -d)
-                COMPREPLY=($(compgen -W "$(_phpunit_php_settings)" -- "${cur}"))
+                COMPREPLY=($(compgen -W "$(_phpunit_completion_php_settings)" -- "${cur}"))
                 __ltrim_colon_completions "${cur}"
                 return 0
                 ;;
@@ -194,7 +192,7 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         esac
 
         if [[ ${cur} == -* ]]; then
-            options=$(_phpunit_options "${phpunit}")
+            options=$(_phpunit_completion_options "${phpunit}")
             COMPREPLY=($(compgen -W "${options}" -- "${cur}"))
         else
             _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${cur}"))
@@ -204,7 +202,104 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         return 0
     }
 
-    complete -o default -F _phpunit phpunit phpunit.phar \
-        $( compgen -ca | grep -E "^phpunit" | grep -v -E "^phpunit(\\.phar)?$" )
+    _phpunit_completion_detect_phpunit()
+    {
+        local phpunit
+        for phpunit in $( compgen -ca | grep -E '^phpunit' ) ; do
+            if compgen -A function -A builtin | grep -q -E "^${phpunit}$" ; then
+                continue
+            fi
+            echo "${phpunit}"
+        done
+    }
+
+    phpunit-completion-register()
+    {
+        local phpunit commands
+        commands="${1:-}"
+        if [ -z "${commands}" ] ; then
+            commands=$(_phpunit_completion_detect_phpunit)
+        fi
+        for phpunit in ${commands} ; do
+            if compgen -A function | grep -q -E "^${phpunit}$" ; then
+                echo "Skipping registration of function '${phpunit}' for phpunit-bash-completion." >&2
+                continue
+            fi
+            complete -o bashdefault -F _phpunit_completion "${phpunit}"
+        done
+    }
+
+    phpunit-completion-register "phpunit phpunit.phar $(_phpunit_completion_detect_phpunit)"
+
+else
+
+    echo 'phpunit-bash-completion not loaded' >&2
+    echo 'It requires bash version >= 3.2 and bash-completion.' >&2
+    echo 'For more information, type:' >&2
+    echo '' >&2
+    echo '    phpunit-completion-reload' >&2
+
+    phpunit-completion-help()
+    {
+        if type -t _get_comp_words_by_ref >/dev/null ; then
+            echo 'bash-completion detected!'
+            if [ -f "$BASH_SOURCE" ] && source "$BASH_SOURCE" ; then
+                unset -f phpunit-completion-help
+                echo '"phpunit-bash-completion" has been reloaded.'
+                return 0
+            else
+                echo 'Could not reload "phpunit-bash-completion".' >&2
+                echo 'In this case source the "phpunit-completion.bash" again.' >&2
+                return 1
+            fi
+        fi
+
+        echo ''
+        echo '"phpunit-bash-completion" requires bash version >= 4.x and'
+        echo 'depends on a number of utility functions from "bash-completion".'
+        echo ''
+        if [ "$(uname -s 2>/dev/null)" = 'Darwin' ] ; then
+            if which port &>/dev/null ; then
+                echo 'To install "bash-completion" with MacPorts, type:'
+                echo ''
+                echo '    sudo port install bash-completion'
+                echo ''
+                echo 'Be sure to add it to your bash startup, as instructed.'
+                echo 'Detailed instructions on using MacPorts "bash":'
+                echo ''
+                echo '    https://trac.macports.org/wiki/howto/bash-completion'
+                echo ''
+            fi
+            if which brew &>/dev/null; then
+                echo 'To install "bash-completion" with Homebrew, type:'
+                echo ''
+                echo '    brew install bash-completion'
+                echo ''
+                echo 'Be sure to add it to your bash startup, as instructed.'
+                echo ''
+            fi
+        fi
+        if which apt-get &>/dev/null; then
+            echo 'To install "bash-completion" with APT, type:'
+            echo ''
+            echo '    sudo apt-get install bash-completion'
+            echo ''
+        fi
+        if which yum &>/dev/null; then
+            echo 'To install "bash-completion" with yum, run as root:'
+            echo ''
+            echo '    yum install bash-completion'
+            echo ''
+        fi
+        echo 'To install bash-completion manually, please see instructions at:'
+        echo ''
+        echo '    https://github.com/scop/bash-completion#installation'
+        echo ''
+        echo 'Once bash and bash-completion are installed and loaded,'
+        echo 'you may reload phpunit-completion:'
+        echo ''
+        echo "    source $BASH_SOURCE"
+        echo ''
+    }
 
 fi
