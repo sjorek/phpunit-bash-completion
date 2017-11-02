@@ -29,23 +29,23 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
             echo 'Cache phpunit completion:'
 
             echo -n '- cache option completion: '
-            _PHPUNIT_COMPLETION_OPTIONS=$(_phpunit_options ${1})
+            _PHPUNIT_COMPLETION_OPTIONS=$(_phpunit_completion_options ${1})
             echo 'done.'
 
             echo -n '- cache suite completion: '
-            _PHPUNIT_COMPLETION_SUITES=$(_phpunit_suites ${1})
+            _PHPUNIT_COMPLETION_SUITES=$(_phpunit_completion_suites ${1})
             echo 'done.'
 
             echo -n '- cache group completion: '
-            _PHPUNIT_COMPLETION_GROUPS=$(_phpunit_groups ${1})
+            _PHPUNIT_COMPLETION_GROUPS=$(_phpunit_completion_groups ${1})
             echo 'done.'
 
             echo -n '- cache test completion: '
-            _PHPUNIT_COMPLETION_TESTS=$(_phpunit_tests ${1})
+            _PHPUNIT_COMPLETION_TESTS=$(_phpunit_completion_tests ${1})
             echo 'done.'
 
             echo -n '- cache php setting completion: '
-            _PHPUNIT_COMPLETION_PHP_SETTINGS=$(_phpunit_php_settings)
+            _PHPUNIT_COMPLETION_PHP_SETTINGS=$(_phpunit_completion_php_settings)
             echo 'done.'
         fi
     }
