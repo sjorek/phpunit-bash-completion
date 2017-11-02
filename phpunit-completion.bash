@@ -18,7 +18,7 @@
 
 if type -t _get_comp_words_by_ref >/dev/null ; then
 
-    phpunit-completion-cache-completion()
+    phpunit-completion-warmup-cache()
     {
         if [ "${1}" = '' ] ; then
             echo 'Missing name of phpunit executable as first argument'
