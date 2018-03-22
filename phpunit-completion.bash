@@ -16,6 +16,9 @@
 # Need help? [RTFM](https://sjorek.github.io/phpunit-bash-completion)!
 #
 
+PHPUNIT_COMPLETION_REGISTER=${PHPUNIT_COMPLETION_REGISTER:-"phpunit phpunit.phar"}
+PHPUNIT_COMPLETION_DETECTION=${PHPUNIT_COMPLETION_DETECTION:-false}
+
 if type -t _get_comp_words_by_ref >/dev/null ; then
 
     phpunit-completion-warmup-cache()
@@ -206,7 +209,7 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
     {
         local phpunit
         for phpunit in $( compgen -ca | grep -E '^phpunit' ) ; do
-            if compgen -A function -A builtin | grep -q -E "^${phpunit}$" ; then
+            if [ "${phpunit}" = "phpunit-completion-register" ] ; then
                 continue
             fi
             echo "${phpunit}"
@@ -215,21 +218,30 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
 
     phpunit-completion-register()
     {
-        local phpunit commands
+        local phpunit commands completion
         commands="${1:-}"
+        completion=${2:-_phpunit_completion}
         if [ -z "${commands}" ] ; then
             commands=$(_phpunit_completion_detect_phpunit)
         fi
         for phpunit in ${commands} ; do
-            if compgen -A function | grep -q -E "^${phpunit}$" ; then
-                echo "Skipping registration of function '${phpunit}' for phpunit-bash-completion." >&2
+            if [ "${phpunit}" = "phpunit-completion-register" ] ; then
                 continue
             fi
-            complete -o bashdefault -F _phpunit_completion "${phpunit}"
+            complete -o bashdefault -F ${completion} "${phpunit}"
         done
     }
 
-    phpunit-completion-register "phpunit phpunit.phar $(_phpunit_completion_detect_phpunit)"
+    if [[ $PHPUNIT_COMPLETION_DETECTION = true ]]  ; then
+        PHPUNIT_COMPLETION_REGISTER="$PHPUNIT_COMPLETION_REGISTER $(_phpunit_completion_detect_phpunit)"
+    fi
+    unset PHPUNIT_COMPLETION_DETECTION
+
+    if [ -n "$PHPUNIT_COMPLETION_REGISTER" ]  ; then
+        phpunit-completion-register "$PHPUNIT_COMPLETION_REGISTER"
+    fi
+    unset PHPUNIT_COMPLETION_REGISTER
+
 
 else
 
