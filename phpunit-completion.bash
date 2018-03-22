@@ -226,12 +226,19 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
             echo "Usage: phpunit-completion-register COMMANDS [FUNCTION]." >&2
             return 1
         fi
-        for phpunit in ${commands} ; do
-            if [ "${phpunit}" = "phpunit-completion-register" ] ; then
-                continue
-            fi
-            complete -o bashdefault -F ${completion} "${phpunit}"
-        done
+        if compgen -A function | grep -q -E "^${completion}$" ; then
+            for phpunit in ${commands} ; do
+                if [ "${phpunit}" = "phpunit-completion-register" ] ; then
+                    continue
+                fi
+                complete -o bashdefault -F ${completion} "${phpunit}"
+            done
+            return 0
+        else
+            echo "Function '${completion}' not found!" >&2
+            echo "Failed to register phpunit-bash-completion for '${commands}'." >&2
+            return 1
+        fi
         return 0
     }
 
