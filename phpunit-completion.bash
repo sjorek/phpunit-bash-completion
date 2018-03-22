@@ -222,7 +222,9 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
         commands="${1:-}"
         completion=${2:-_phpunit_completion}
         if [ -z "${commands}" ] ; then
-            commands=$(_phpunit_completion_detect_phpunit)
+            echo "Missing phpunit commands to register." >&2
+            echo "Usage: phpunit-completion-register COMMANDS [FUNCTION]." >&2
+            return 1
         fi
         for phpunit in ${commands} ; do
             if [ "${phpunit}" = "phpunit-completion-register" ] ; then
@@ -230,6 +232,7 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
             fi
             complete -o bashdefault -F ${completion} "${phpunit}"
         done
+        return 0
     }
 
     if [[ $PHPUNIT_COMPLETION_DETECTION = true ]]  ; then
