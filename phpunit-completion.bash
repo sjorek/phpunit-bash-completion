@@ -249,7 +249,7 @@ else
     echo 'It requires bash version >= 3.2 and bash-completion.' >&2
     echo 'For more information, type:' >&2
     echo '' >&2
-    echo '    phpunit-completion-reload' >&2
+    echo '    phpunit-completion-help' >&2
 
     phpunit-completion-help()
     {
