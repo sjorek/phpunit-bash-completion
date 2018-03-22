@@ -16,8 +16,16 @@
 # Need help? [RTFM](https://sjorek.github.io/phpunit-bash-completion)!
 #
 
+#PHPUNIT_COMPLETION_PHP=
 PHPUNIT_COMPLETION_REGISTER=${PHPUNIT_COMPLETION_REGISTER:-"phpunit phpunit.phar"}
 PHPUNIT_COMPLETION_DETECTION=${PHPUNIT_COMPLETION_DETECTION:-false}
+
+if [ -z "${PHPUNIT_COMPLETION_PHP:-}" ] ; then
+    PHPUNIT_COMPLETION_PHP=php
+    if [ -x /usr/bin/env ] && /usr/bin/env php --version >/dev/null 2>&1 ; then
+        PHPUNIT_COMPLETION_PHP=$(/usr/bin/env php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
+    fi
+fi
 
 if type -t _get_comp_words_by_ref >/dev/null ; then
 
