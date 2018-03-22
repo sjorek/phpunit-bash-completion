@@ -140,7 +140,7 @@ if type -t _get_comp_words_by_ref >/dev/null ; then
         if declare -p _PHPUNIT_COMPLETION_PHP_SETTINGS >/dev/null 2>&1 ; then
             echo "${_PHPUNIT_COMPLETION_PHP_SETTINGS}"
         else
-            php -r 'array_map(function($k) { echo $k . PHP_EOL; }, array_keys(ini_get_all(null, false)));' 2>/dev/null
+            ${PHPUNIT_COMPLETION_PHP} -r 'array_map(function($k){echo $k.PHP_EOL;},array_keys(ini_get_all(null,false)));' 2>/dev/null
         fi
     }
 
