@@ -46,7 +46,7 @@ Look at the [contribution guidelines](CONTRIBUTING.md)
 
 There is a [composer-bash-completion](https://sjorek.github.io/composer-bash-completion/)
 complementing the bash-completion. And - once more - if you're using [MacPorts](http://macports.org),
-take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP/)
+take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php/)
 repository.
 
 Cheers!
