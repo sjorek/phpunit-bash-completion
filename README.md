@@ -34,7 +34,7 @@ The completion routines support completing all options and arguments provided by
 3. Optionally nail down the php interpreter used to determine certain
    completions by adding the following line in your `~/.bash_profile`:
 
-         `export PHPUNIT_COMPLETION_PHP=/path/to/your/php`
+         export PHPUNIT_COMPLETION_PHP=/path/to/your/php
 
 
 ## Contributing
