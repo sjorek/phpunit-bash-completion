@@ -28,7 +28,7 @@ The completion routines support completing all options and arguments provided by
 
      `source ~/.phpunit-completion.sh`
    * c.) If you're using [MacPorts](https://www.macports.org) then you should
-     take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP)
+     take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php)
      repository.
 
 3. Optionally nail down the php interpreter used to determine certain
